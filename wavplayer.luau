@@ -1,6 +1,8 @@
 local asset = require(136961041832048)
 local assets = {asset("Iris"), asset("wav_player"), asset("fft_emitter")}
 
+-- hi
+
 local NMS = require(106126121742989).NMS
 
 local source = [==========[
@@ -330,7 +332,7 @@ local function createLS()
 				i = -1
 			end
 			remote:FireClient(player, {{"load", i, v}})
-			task.wait(0.025)
+			task.wait()
 		end
 	end
 
