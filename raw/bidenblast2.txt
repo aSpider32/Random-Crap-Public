@@ -1,0 +1,290 @@
+local player = game:GetService("Players"):FindFirstChild("Monarch_x64")
+local backpack = player.Backpack
+
+local tool = Instance.new("Tool", backpack)
+tool.Name = "BIDEN BLAST"
+tool.ToolTip = "BIDEN BLA-"
+tool.Grip = CFrame.new(0.7, -0.3, 0.15)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Massless = true
+handle.CanCollide = false
+local decal = Instance.new("Decal")
+decal.Texture = "rbxassetid://14777642277"
+decal.Parent = handle
+local theme = Instance.new("Sound")
+theme.SoundId = "rbxassetid://1841998042"
+theme.Looped = true
+theme.Parent = handle
+
+local hold = false
+local t = 0
+local power = 0
+
+local hits = {}
+
+function dran(min, max)
+	return math.random(min * 1000, max * 1000) * 0.001
+end
+
+function sound(root, id, volume, speed, delay, deepFry)
+	local snd = Instance.new("Sound")
+	snd.Parent = root or workspace
+	snd.SoundId = "rbxassetid://"..(id or "17748195478")
+	snd.Volume = volume or 0.5
+	snd.PlaybackSpeed = speed or 1
+	snd.PlayOnRemove = true
+	if deepFry == true then
+		local eq = Instance.new("EqualizerSoundEffect", snd)
+		eq.LowGain = -80
+		eq.HighGain = -80
+		eq.MidGain = 10
+		local di = Instance.new("DistortionSoundEffect", snd)
+		di.Level = 0.9
+
+		snd.Volume = snd.Volume - 0.25
+	end
+	task.spawn(function()
+		if delay ~= nil and delay > 0 then
+			task.wait(delay)
+		end
+		snd:Destroy()
+	end)
+end
+
+function hitbox(root, offset, size, lifetime)
+	table.clear(hits)
+	local box = Instance.new("Part")
+	box.Parent = workspace.Terrain
+	box.Transparency = 1
+	box.Anchored = false
+	box.CanCollide = false
+	box.CanQuery = false
+	box.CFrame = root.CFrame * offset
+	box.Size = size
+	local selection = Instance.new("SelectionBox")
+	selection.Parent = box
+	selection.Adornee = box
+	selection.LineThickness = .05
+	selection.Color3 = Color3.new(1, 0, 0)
+	selection.SurfaceColor3 = Color3.new(1, 0, 0)
+	selection.SurfaceTransparency = .95
+	selection.Transparency = 0.95
+	task.spawn(function()
+		local t = 0
+		repeat
+			box.CFrame = (root.CFrame * offset) * CFrame.new(dran(-0.1, 0.1), dran(-0.1, 0.1), dran(-0.1, 0.1))
+			box.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+			t = t + task.wait()
+		until t>=lifetime
+		box:Destroy()
+	end)
+	return box.Touched
+end
+
+tool.Equipped:Connect(function()
+	theme:Play()
+end)
+
+tool.Unequipped:Connect(function()
+	theme:Stop()
+end)
+
+tool.Activated:Connect(function()
+	hold = true
+	power = -2.5
+	local powerScale = 1.5
+	theme.SoundId = "rbxassetid://75726374177969"
+	theme.Parent = workspace
+
+	local laser = Instance.new("Sound")
+	laser.SoundId = "rbxassetid://126321934365548"
+	laser.Looped = true
+	laser.Parent = handle
+	laser:Play()
+	laser:Pause()
+	repeat
+		power = power + task.wait()
+		if power < 0 then
+			task.spawn(function()
+				local charge = Instance.new("Part", workspace)
+				charge.Anchored = true
+				charge.CastShadow = false
+				charge.Size = Vector3.new(0.1, 0.1, 1) * -power
+				charge.Position = handle.Position + Vector3.new(dran(-2, 2) * power, dran(-2, 2) * power, dran(-2, 2) * power)
+				charge.CFrame = CFrame.lookAt(charge.Position, handle.Position)
+				charge.Transparency = 0.7
+				charge.Material = Enum.Material.Neon
+				charge.CanCollide = false
+				charge.CanQuery = false
+				charge.CanTouch = false
+				local lifetime = dran(0.1, 1.15)
+				local post = game:GetService("TweenService"):Create(charge, TweenInfo.new(lifetime, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {Position = handle.Position, Size = Vector3.new(0.1, 0.1, 0.1) * power, Transparency = 0})
+				post:Play()
+				task.wait(lifetime)
+				post:Destroy()
+				charge:Destroy()
+			end)
+		elseif power > 0 and power < 15 then
+
+			task.spawn(function()
+				local charge = Instance.new("Part", workspace)
+				charge.Anchored = true
+				charge.CastShadow = false
+				charge.Size = Vector3.new(0.01, 0.01, 0.3) * power
+				charge.Position = handle.Position
+				charge.Orientation = Vector3.new(dran(-360, 360), dran(-360, 360), dran(-360, 360))
+				charge.Transparency = 0.7
+				charge.Material = Enum.Material.Neon
+				charge.CanCollide = false
+				charge.CanQuery = false
+				charge.CanTouch = false
+				local lifetime = dran(0.1, 1.15)
+				local post = game:GetService("TweenService"):Create(charge, TweenInfo.new(lifetime, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {CFrame = charge.CFrame * CFrame.new(0, 0, -5 * power), Size = Vector3.new(0.1, 0.1, 1) * power, Transparency = 1})
+				post:Play()
+				task.wait(lifetime)
+				post:Destroy()
+				charge:Destroy()
+			end)
+
+			laser:Resume()
+			local hit = hitbox(handle, CFrame.new(0, 0, -250), Vector3.new(1.5 * powerScale, 1.5 * powerScale, 500), 0.1)
+			hit:Connect(function(hit)
+				local hum = hit.Parent:FindFirstChildWhichIsA("Humanoid")
+
+				if hum and hum:IsDescendantOf(tool.Parent) == false then
+					local exsits = false
+					for i, v in pairs(hits) do
+						if v == hum then
+							exsits = true
+						end
+					end
+					if exsits == false then
+						table.insert(hits, hum)
+						hum:TakeDamage(0.15 * power)
+						sound(hit, 7419123685, 5, 1, 0, false)
+					end
+				end
+			end)
+
+			task.spawn(function()
+				local charge = Instance.new("Part", workspace)
+				charge.Anchored = true
+				charge.CastShadow = false
+				charge.Size = Vector3.new(1.5 * powerScale, 1.5 * powerScale, 500)
+				charge.CFrame = handle.CFrame * CFrame.new(0, 0, -250)
+				charge.Transparency = 0.7
+				charge.Material = Enum.Material.Neon
+				charge.CanCollide = false
+				charge.CanQuery = false
+				charge.CanTouch = false
+				local lifetime = dran(0.1, 0.25)
+				local post = game:GetService("TweenService"):Create(charge, TweenInfo.new(lifetime, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {Size = Vector3.new(0, 0, 500), Transparency = 1})
+				post:Play()
+				task.wait(lifetime)
+				post:Destroy()
+				charge:Destroy()
+			end)
+
+			laser.PlaybackSpeed = math.clamp(1.5 / (power/7), 0.1, 10)
+
+			if power > powerScale then
+				powerScale = powerScale * 1.2
+				sound(handle, 140712924060867, 5, math.clamp(1.5 / (powerScale/7), 0.05, 10), 0, false)
+				for i = 1, dran(5, 15), 1 do
+					task.spawn(function()
+						local charge = Instance.new("Part", workspace)
+						charge.Anchored = true
+						charge.CastShadow = false
+						charge.Size = Vector3.new(0.1, 0.1, 1) * -power
+						charge.Position = handle.Position
+						charge.Orientation = Vector3.new(dran(-360, 360), dran(-360, 360), dran(-360, 360))
+						charge.Transparency = 0.7
+						charge.Material = Enum.Material.Neon
+						charge.CanCollide = false
+						charge.CanQuery = false
+						charge.CanTouch = false
+						local lifetime = dran(0.1, 1.15)
+						local post = game:GetService("TweenService"):Create(charge, TweenInfo.new(lifetime, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {Position = handle.Position, Size = Vector3.new(3.5, 3.5, 3.5) * power, Orientation = Vector3.new(dran(-360, 360), dran(-360, 360), dran(-360, 360)), Transparency = 1})
+						post:Play()
+						task.wait(lifetime)
+						post:Destroy()
+						charge:Destroy()
+					end)
+				end
+			end
+		else
+			hold = false
+			sound(workspace, 134789600881595, 1, 1, 0, false)
+			power = 150
+			local hit = hitbox(handle, CFrame.new(0, 0, 0), Vector3.new(300, 300, 300), 0.1)
+			hit:Connect(function(hit)
+				local hum = hit.Parent:FindFirstChildWhichIsA("Humanoid")
+
+				if hum and hum:IsDescendantOf(tool.Parent) == false then
+					local exsits = false
+					for i, v in pairs(hits) do
+						if v == hum then
+							exsits = true
+						end
+					end
+					local normals = {"Top", "Bottom", "Right", "Left", "Front", "Back"}
+					if exsits == false then
+						table.insert(hits, hum)
+						for i, v in pairs(hum.Parent:GetDescendants()) do
+							if v:IsA("BasePart") then
+								for mew = 1, 6, 1 do
+									local decal = Instance.new("Decal")
+									decal.Texture = "rbxassetid://14777642277"
+									decal.Parent = v
+									decal.Face = normals[mew]
+								end
+							end
+						end
+						hum:TakeDamage(0.015 * power)
+						sound(hit, 5725941207, 5, 1, 0, false)
+					end
+				end
+			end)
+			for i = 1, dran(5, 15), 1 do
+				task.spawn(function()
+					local charge = Instance.new("Part", workspace)
+					charge.Anchored = true
+					charge.CastShadow = false
+					charge.Size = Vector3.new(0.1, 0.1, 1) * -power
+					charge.Position = handle.Position
+					charge.Orientation = Vector3.new(dran(-360, 360), dran(-360, 360), dran(-360, 360))
+					charge.Transparency = 0.7
+					charge.Material = Enum.Material.Neon
+					charge.CanCollide = false
+					charge.CanQuery = false
+					charge.CanTouch = false
+					local lifetime = dran(0.1, 1.15)
+					local post = game:GetService("TweenService"):Create(charge, TweenInfo.new(lifetime, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {Position = handle.Position, Size = Vector3.new(3.5, 3.5, 3.5) * power, Orientation = Vector3.new(dran(-360, 360), dran(-360, 360), dran(-360, 360)), Transparency = 1})
+					post:Play()
+					task.wait(lifetime)
+					post:Destroy()
+					charge:Destroy()
+				end)
+			end
+		end
+		tool.Name = "BIDEN BLAST x"..tostring(math.round(powerScale)).."/"..tostring(math.round(power))
+	until hold == false
+	laser:Destroy()
+	theme.Parent = handle
+	theme.SoundId = "rbxassetid://1841998042"
+end)
+
+tool.Deactivated:Connect(function()
+	hold = false
+end)
+
+repeat
+	handle.Size = Vector3.new(2 + (0.25 * math.sin(3.713 * t)), 2 + (0.25 * math.cos(3.11 * t)), 0.5)
+	t = t + task.wait()
+until tool.Parent == workspace or (not tool) or (not handle)
+
+hold = false
+tool:Destroy()
+theme:Destroy()
