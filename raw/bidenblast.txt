@@ -95,9 +95,9 @@ tool.Activated:Connect(function()
 	hold = true
 	power = -2.5
 	local powerScale = 1.5
-	theme.SoundId = "rbxassetid://134446330911104"
+	theme.SoundId = "rbxassetid://75726374177969"
 	theme.Parent = workspace
-	
+
 	local laser = Instance.new("Sound")
 	laser.SoundId = "rbxassetid://126321934365548"
 	laser.Looped = true
@@ -127,7 +127,7 @@ tool.Activated:Connect(function()
 				charge:Destroy()
 			end)
 		elseif power > 0 and power < 15 then
-			
+
 			task.spawn(function()
 				local charge = Instance.new("Part", workspace)
 				charge.Anchored = true
@@ -147,12 +147,12 @@ tool.Activated:Connect(function()
 				post:Destroy()
 				charge:Destroy()
 			end)
-			
+
 			laser:Resume()
 			local hit = hitbox(handle, CFrame.new(0, 0, -250), Vector3.new(1.5 * powerScale, 1.5 * powerScale, 500), 0.1)
 			hit:Connect(function(hit)
 				local hum = hit.Parent:FindFirstChildWhichIsA("Humanoid")
-				
+
 				if hum and hum:IsDescendantOf(tool.Parent) == false then
 					local exsits = false
 					for i, v in pairs(hits) do
@@ -163,11 +163,11 @@ tool.Activated:Connect(function()
 					if exsits == false then
 						table.insert(hits, hum)
 						hum:TakeDamage(0.15 * power)
-						sound(hit, 7419123685, 5, 1, 0, true)
+						sound(hit, 7419123685, 5, 1, 0, false)
 					end
 				end
 			end)
-			
+
 			task.spawn(function()
 				local charge = Instance.new("Part", workspace)
 				charge.Anchored = true
@@ -186,12 +186,12 @@ tool.Activated:Connect(function()
 				post:Destroy()
 				charge:Destroy()
 			end)
-			
+
 			laser.PlaybackSpeed = math.clamp(1.5 / (power/7), 0.1, 10)
-			
+
 			if power > powerScale then
 				powerScale = powerScale * 1.2
-				sound(handle, 140712924060867, 5, math.clamp(1.5 / (powerScale/7), 0.05, 10), 0, true)
+				sound(handle, 140712924060867, 5, math.clamp(1.5 / (powerScale/7), 0.05, 10), 0, false)
 				for i = 1, dran(5, 15), 1 do
 					task.spawn(function()
 						local charge = Instance.new("Part", workspace)
@@ -216,7 +216,7 @@ tool.Activated:Connect(function()
 			end
 		else
 			hold = false
-			sound(workspace, 134789600881595, 1, 1, 0, true)
+			sound(workspace, 134789600881595, 1, 1, 0, false)
 			power = 150
 			local hit = hitbox(handle, CFrame.new(0, 0, 0), Vector3.new(300, 300, 300), 0.1)
 			hit:Connect(function(hit)
@@ -243,7 +243,7 @@ tool.Activated:Connect(function()
 							end
 						end
 						hum:TakeDamage(0.015 * power)
-						sound(hit, 5725941207, 5, 1, 0, true)
+						sound(hit, 5725941207, 5, 1, 0, false)
 					end
 				end
 			end)
